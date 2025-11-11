@@ -8,7 +8,7 @@ export default function BikeDetail() {
   const [bike, setBike] = useState(null);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5050/bikes/${id}`)
+    fetch(`https://bikerapp-backend-694862036731.asia-south1.run.app/bikes/${id}`)
       .then(res => res.json())
       .then(data => setBike(data));
   }, [id]);
