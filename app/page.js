@@ -11,7 +11,7 @@ export default function Home() {
 
   
   useEffect(() => {
-    fetch("http://127.0.0.1:5050/bikes")
+    fetch("https://bikerapp-backend-694862036731.asia-south1.run.app/bikes")
       .then((res) => res.json())
       .then((data) => setBikes(data))
       .catch((err) => console.error("Error fetching bikes:", err));
