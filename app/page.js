@@ -18,12 +18,9 @@ export default function Home() {
   }, []);
 
   
-  const handleSelectChange = (event) => {
-    const bikeId = event.target.value;
-    setSelectedBike(bikeId);
-
-    if (bikeId) {
-      router.push(`/bike/${bikeId}`); 
+  const handleSubmit = () => {
+    if (selectedBike) {
+      router.push(`/bike/${selectedBike}`);
     }
   };
 
@@ -34,7 +31,7 @@ export default function Home() {
 
       <select
         value={selectedBike}
-        onChange={handleSelectChange}
+        onChange={(e) => setSelectedBike(e.target.value)}
         style={{
           padding: "10px",
           fontSize: "16px",
@@ -44,15 +41,38 @@ export default function Home() {
         }}
       >
         
-        <option value="">Select the bike</option>
-
-       
+        <option value="">Select the bike</option>      
         {bikes.map((bike) => (
           <option key={bike.id} value={bike.id}>
             {bike.name}
           </option>
         ))}
       </select>
+
+             <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      marginTop: "20px",
+    }} >
+        <button
+          onClick={handleSubmit}
+          style={{
+            display: "flex",
+            marginTop: "20px",
+            padding: "10px 20px",
+            fontSize: "16px",
+            backgroundColor: "#0A6FEB",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Submit
+        </button>
+        </div>
+    
     </div>
   );
 }
