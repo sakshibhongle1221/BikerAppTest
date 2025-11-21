@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,13 +12,19 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { signup } = useAuth();
+  const { signup, user } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/setup-profile");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (password !== confirmPassword) {
       return setError("Passwords do not match");
     }
@@ -31,10 +37,11 @@ export default function SignupPage() {
       setError("");
       setLoading(true);
       await signup(email, password);
-      router.push("/"); // Redirect after signup
+      
+      // After signup, redirect to profile setup
+      router.push("/setup-profile");
     } catch (error) {
       setError("Failed to create account: " + error.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -47,15 +54,18 @@ export default function SignupPage() {
       border: "1px solid #ccc",
       borderRadius: "8px"
     }}>
-      <h1 style={{ textAlign: "center" }}>Sign Up</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "10px" }}>Riders App</h1>
+      <h2 style={{ textAlign: "center", marginBottom: "20px", fontSize: "20px" }}>Sign Up</h2>
       
       {error && (
-        <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+        <p style={{ color: "red", textAlign: "center", marginBottom: "15px" }}>
+          {error}
+        </p>
       )}
 
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: "15px" }}>
-          <label>Email:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>Email:</label>
           <input
             type="email"
             value={email}
@@ -64,15 +74,15 @@ export default function SignupPage() {
             style={{
               width: "100%",
               padding: "10px",
-              marginTop: "5px",
               borderRadius: "4px",
-              border: "1px solid #ccc"
+              border: "1px solid #ccc",
+              fontSize: "14px"
             }}
           />
         </div>
 
         <div style={{ marginBottom: "15px" }}>
-          <label>Password:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>Password:</label>
           <input
             type="password"
             value={password}
@@ -81,15 +91,15 @@ export default function SignupPage() {
             style={{
               width: "100%",
               padding: "10px",
-              marginTop: "5px",
               borderRadius: "4px",
-              border: "1px solid #ccc"
+              border: "1px solid #ccc",
+              fontSize: "14px"
             }}
           />
         </div>
 
-        <div style={{ marginBottom: "15px" }}>
-          <label>Confirm Password:</label>
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>Confirm Password:</label>
           <input
             type="password"
             value={confirmPassword}
@@ -98,9 +108,9 @@ export default function SignupPage() {
             style={{
               width: "100%",
               padding: "10px",
-              marginTop: "5px",
               borderRadius: "4px",
-              border: "1px solid #ccc"
+              border: "1px solid #ccc",
+              fontSize: "14px"
             }}
           />
         </div>
@@ -110,22 +120,23 @@ export default function SignupPage() {
           disabled={loading}
           style={{
             width: "100%",
-            padding: "10px",
-            backgroundColor: "#0070f3",
+            padding: "12px",
+            backgroundColor: loading ? "#ccc" : "#28a745",
             color: "white",
             border: "none",
             borderRadius: "4px",
             cursor: loading ? "not-allowed" : "pointer",
-            fontSize: "16px"
+            fontSize: "16px",
+            fontWeight: "bold"
           }}
         >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>
 
-      <p style={{ textAlign: "center", marginTop: "15px" }}>
+      <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}>
         Already have an account?{" "}
-        <Link href="/login" style={{ color: "blue" }}>
+        <Link href="/login" style={{ color: "#0070f3", textDecoration: "none", fontWeight: "bold" }}>
           Login
         </Link>
       </p>

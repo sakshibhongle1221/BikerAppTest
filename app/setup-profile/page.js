@@ -1,42 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function SetupProfile() {
+  const [userName, setUserName] = useState("");
+  const [bikeName, setBikeName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login, user, userProfile } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const router = useRouter();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      // Check if user has completed profile setup
-      if (userProfile?.userName && userProfile?.bikeName) {
-        router.push("/dashboard");
-      } else {
-        router.push("/setup-profile");
-      }
-    }
-  }, [user, userProfile, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    if (!userName.trim() || !bikeName.trim()) {
+      setError("Please fill in both fields");
+      return;
+    }
+
     try {
       setError("");
       setLoading(true);
-      await login(email, password);
-      
-      // Redirect is handled by useEffect above
+
+      // Save user profile data
+      await updateUserProfile({
+        userName: userName.trim(),
+        bikeName: bikeName.trim()
+      });
+
+      // Redirect to dashboard
+      router.push("/dashboard");
     } catch (error) {
-      setError("Failed to login: " + error.message);
+      setError("Failed to save profile: " + error.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -49,8 +48,10 @@ export default function LoginPage() {
       border: "1px solid #ccc",
       borderRadius: "8px"
     }}>
-      <h1 style={{ textAlign: "center", marginBottom: "10px" }}>Riders App</h1>
-      <h2 style={{ textAlign: "center", marginBottom: "20px", fontSize: "20px" }}>Login</h2>
+      <h1 style={{ textAlign: "center" }}>Complete Your Profile</h1>
+      <p style={{ textAlign: "center", color: "#666", marginBottom: "20px" }}>
+        Tell us about yourself
+      </p>
       
       {error && (
         <p style={{ color: "red", textAlign: "center", marginBottom: "15px" }}>
@@ -60,11 +61,14 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Email:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Your Name:
+          </label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Enter your name"
             required
             style={{
               width: "100%",
@@ -77,11 +81,14 @@ export default function LoginPage() {
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Password:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Your Bike:
+          </label>
           <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="text"
+            value={bikeName}
+            onChange={(e) => setBikeName(e.target.value)}
+            placeholder="Enter your bike name"
             required
             style={{
               width: "100%",
@@ -108,16 +115,9 @@ export default function LoginPage() {
             fontWeight: "bold"
           }}
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Saving..." : "Continue"}
         </button>
       </form>
-
-      <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}>
-        Don't have an account?{" "}
-        <Link href="/signup" style={{ color: "#0070f3", textDecoration: "none", fontWeight: "bold" }}>
-          Sign up
-        </Link>
-      </p>
     </div>
   );
 }
