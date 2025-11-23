@@ -17,13 +17,10 @@ export default function Dashboard() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (apiUrl) {
-      fetch(`${apiUrl}/bikes`)
-        .then((res) => res.json())
-        .then((data) => setBikes(data))
-        .catch((err) => console.error("Error fetching bikes:", err));
-    }
+    fetch("https://bikerapp-backend-694862036731.asia-south1.run.app/bikes")
+      .then((res) => res.json())
+      .then((data) => setBikes(data))
+      .catch((err) => console.error("Error fetching bikes:", err));
   }, []);
 
   const handleSelectChange = (event) => {
@@ -62,9 +59,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
-
       <div className="absolute top-5 right-5 flex items-center gap-4">
-
         <div 
           onClick={handleProfileClick}
           className="w-12 h-12 rounded-full bg-blue-600 border-4 border-blue-700 flex items-center justify-center text-white text-xl font-bold cursor-pointer hover:scale-110 transition-transform overflow-hidden"
@@ -74,7 +69,7 @@ export default function Dashboard() {
             <img 
               src={user.photoURL} 
               alt="Profile"
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-cover"
             />
           ) : (
             userProfile?.userName ? userProfile.userName.charAt(0).toUpperCase() : "U"

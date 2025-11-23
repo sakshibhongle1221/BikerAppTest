@@ -86,7 +86,7 @@ export default function SetupProfile() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block mb-2 text-sm font-semibold text-black">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Your Name
             </label>
             <input
@@ -95,21 +95,21 @@ export default function SetupProfile() {
               onChange={(e) => setUserName(e.target.value)}
               placeholder="Enter your name"
               required
-              className="w-full px-4 py-3 border-2 border-black rounded-lg focus:border-blue-600 focus:outline-none text-gray-900 transition-colors"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none transition-colors text-gray-900 placeholder-gray-400"
             />
           </div>
 
           <div>
-            <label className="block mb-2 text-sm font-semibold text-black">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Your Bike
             </label>
             <input
               type="text"
               value={bikeName}
               onChange={(e) => setBikeName(e.target.value)}
-              placeholder="e.g, Royal Enfield Classic 350"
+              placeholder="e.g., Royal Enfield Classic 350"
               required
-              className="w-full px-4 py-3 border-2 border-black rounded-lg focus:border-blue-600 focus:outline-none text-gray-900 transition-colors"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none transition-colors text-gray-900 placeholder-gray-400"
             />
           </div>
 
