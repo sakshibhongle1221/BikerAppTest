@@ -3,27 +3,32 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function SetupProfile() {
   const [userName, setUserName] = useState("");
   const [bikeName, setBikeName] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { user, userProfile, updateUserProfile } = useAuth();
+  const { user, userProfile, updateUserProfile, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.displayName) {
+    if (user?.displayName && !userName) {
       setUserName(user.displayName);
     }
-  }, [user]);
+  }, [user, userName]);
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.push("/login");
     }
-  }, [user, router]);
+
+    if (!loading && user && userProfile?.bikeName) {
+      router.push("/dashboard");
+    }
+  }, [user, userProfile, loading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +40,7 @@ export default function SetupProfile() {
 
     try {
       setError("");
-      setLoading(true);
+      setIsSaving(true);
 
       await updateUserProfile({
         userName: userName.trim(),
@@ -45,86 +50,51 @@ export default function SetupProfile() {
       router.push("/dashboard");
     } catch (error) {
       setError("Failed to save profile: " + error.message);
-    } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
-  if (!user) {
+  if (loading || !user) {
     return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "100vh" 
-      }}>
-        <h2>Loading...</h2>
+      <div className="flex justify-center items-center h-screen">
+        <h2 className="text-xl font-semibold">Loading...</h2>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      backgroundColor: "#f5f5f5"
-    }}>
-      <div style={{ 
-        maxWidth: "500px",
-        width: "100%",
-        padding: "40px",
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-      }}>
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          {user.photoURL && (
-            <img 
-              src={user.photoURL} 
-              alt="Profile"
-              style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "50%",
-                marginBottom: "15px",
-                border: "3px solid #0070f3"
-              }}
-            />
-          )}
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="max-w-[500px] w-full p-10 bg-white rounded-xl shadow-md">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-full border-4 border-blue-600 overflow-hidden relative">
+               {user.photoURL ? (
+                 <Image src={user.photoURL} alt="Profile" fill className="object-cover" />
+               ) : (
+                 <div className="w-full h-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500">
+                   {userName ? userName.charAt(0).toUpperCase() : "U"}
+                 </div>
+               )}
+            </div>
+          </div>
           
-          <h1 style={{ fontSize: "28px", marginBottom: "8px", color: "#0070f3" }}>
+          <h1 className="text-2xl font-bold mb-2 text-blue-600">
             Complete Your Profile
           </h1>
-          <p style={{ fontSize: "14px", color: "#666" }}>
+          <p className="text-sm text-gray-500">
             Tell us about yourself and your ride
           </p>
         </div>
         
         {error && (
-          <div style={{ 
-            padding: "12px",
-            backgroundColor: "#fee",
-            border: "1px solid #fcc",
-            borderRadius: "6px",
-            marginBottom: "20px"
-          }}>
-            <p style={{ color: "#c00", margin: 0, fontSize: "14px" }}>
-              {error}
-            </p>
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-5">
+            <p className="text-red-600 m-0 text-sm">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ 
-              display: "block", 
-              marginBottom: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333"
-            }}>
+          <div className="mb-5">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Your Name
             </label>
             <input
@@ -133,24 +103,12 @@ export default function SetupProfile() {
               onChange={(e) => setUserName(e.target.value)}
               placeholder="Enter your name"
               required
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "6px",
-                border: "2px solid #ddd",
-                fontSize: "16px"
-              }}
+              className="w-full p-3 rounded-lg border-2 border-gray-200 text-base focus:border-blue-500 focus:outline-none"
             />
           </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label style={{ 
-              display: "block", 
-              marginBottom: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333"
-            }}>
+          <div className="mb-6">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Your Bike
             </label>
             <input
@@ -159,32 +117,20 @@ export default function SetupProfile() {
               onChange={(e) => setBikeName(e.target.value)}
               placeholder="e.g., Royal Enfield Classic 350"
               required
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "6px",
-                border: "2px solid #ddd",
-                fontSize: "16px"
-              }}
+              className="w-full p-3 rounded-lg border-2 border-gray-200 text-base focus:border-blue-500 focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "14px",
-              backgroundColor: loading ? "#ccc" : "#0070f3",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: loading ? "not-allowed" : "pointer",
-              fontSize: "16px",
-              fontWeight: "bold"
-            }}
+            disabled={isSaving}
+            className={`
+              w-full p-3.5 bg-blue-600 text-white border-none rounded-lg
+              text-base font-bold cursor-pointer transition-colors
+              ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}
+            `}
           >
-            {loading ? "Saving..." : "Continue to Dashboard"}
+            {isSaving ? "Saving..." : "Continue to Dashboard"}
           </button>
         </form>
       </div>
