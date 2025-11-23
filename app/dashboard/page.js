@@ -74,7 +74,7 @@ export default function Dashboard() {
             <img 
               src={user.photoURL} 
               alt="Profile"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-full"
             />
           ) : (
             userProfile?.userName ? userProfile.userName.charAt(0).toUpperCase() : "U"

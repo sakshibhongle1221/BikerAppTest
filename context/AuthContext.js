@@ -35,9 +35,11 @@ export function AuthProvider({ children }) {
               userName: user.displayName || "",
               email: user.email,
               uid: user.uid,
-              photoURL: user.photoURL,
+              photoURL: user.photoURL || "",
               createdAt: new Date().toISOString()
             };
+            
+            await setDoc(userDocRef, initialProfile);
             setUserProfile(initialProfile);
           }
         } catch (error) {
@@ -51,15 +53,20 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
     try {
       const result = await signInWithPopup(auth, provider);
       return result;
     } catch (error) {
+      console.error("Login error:", error);
       throw error;
     }
   };
@@ -67,7 +74,10 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
+      setUserProfile(null);
     } catch (error) {
+      console.error("Logout error:", error);
       throw error;
     }
   };
@@ -84,7 +94,7 @@ export function AuthProvider({ children }) {
         ...profileData,
         email: user.email,
         uid: user.uid,
-        photoURL: user.photoURL,
+        photoURL: user.photoURL || "",
         updatedAt: new Date().toISOString()
       };
 
