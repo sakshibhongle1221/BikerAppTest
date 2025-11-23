@@ -36,12 +36,15 @@ export function AuthProvider({ children }) {
               email: user.email,
               uid: user.uid,
               photoURL: user.photoURL,
-              createdAt: new Date().toISOString()
+              createdAt: new Date().toISOString(),
+              bikeName: null 
             };
+            
+            await setDoc(userDocRef, initialProfile);
             setUserProfile(initialProfile);
           }
         } catch (error) {
-          console.error("Error loading user profile:", error);
+          console.error("Error loading/creating user profile:", error);
           setUserProfile(null);
         }
       } 
@@ -68,6 +71,8 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
+      setUserProfile(null);
     } catch (error) {
       throw error;
     }
@@ -82,10 +87,8 @@ export function AuthProvider({ children }) {
       const userDocRef = doc(db, "users", user.uid);
       
       const updatedProfile = {
+        ...userProfile,
         ...profileData,
-        email: user.email,
-        uid: user.uid,
-        photoURL: user.photoURL,
         updatedAt: new Date().toISOString()
       };
 

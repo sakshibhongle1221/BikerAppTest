@@ -13,7 +13,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !authLoading) {
-
       if (userProfile?.bikeName) {
         router.push("/dashboard");
       } else {
@@ -34,54 +33,28 @@ export default function LoginPage() {
         setError("Sign-in was cancelled. Please try again.");
       } else if (error.code === "auth/popup-blocked") {
         setError("Pop-up was blocked. Please allow pop-ups for this site.");
-      } else if (error.code === "auth/network-request-failed") {
-        setError("Network error. Please check your internet connection.");
       } else {
         setError("Failed to sign in: " + error.message);
       }
-      
       setIsLoggingIn(false);
     }
   };
 
   return (
-    <div style={{ 
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      backgroundColor: "#f5f5f5"
-    }}>
-      <div style={{ 
-        maxWidth: "400px", 
-        width: "100%",
-        padding: "40px",
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-      }}>
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <h1 style={{ 
-            fontSize: "32px", 
-            marginBottom: "10px",
-            color: "#0070f3" 
-          }}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="max-w-[400px] w-full p-10 bg-white rounded-xl shadow-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-blue-600">
             Riders App
           </h1>
-          <p style={{ fontSize: "16px", color: "#666" }}>
+          <p className="text-base text-gray-500">
             Welcome back! Sign in to continue
           </p>
         </div>
         
         {error && (
-          <div style={{ 
-            padding: "12px",
-            backgroundColor: "#fee",
-            border: "1px solid #fcc",
-            borderRadius: "6px",
-            marginBottom: "20px"
-          }}>
-            <p style={{ color: "#c00", margin: 0, fontSize: "14px" }}>
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-5">
+            <p className="text-red-600 m-0 text-sm">
               {error}
             </p>
           </div>
@@ -90,23 +63,12 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoggingIn || authLoading}
-          style={{
-            width: "100%",
-            padding: "14px",
-            backgroundColor: "white",
-            color: "#444",
-            border: "2px solid #ddd",
-            borderRadius: "8px",
-            cursor: (isLoggingIn || authLoading) ? "not-allowed" : "pointer",
-            fontSize: "16px",
-            fontWeight: "600",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            transition: "all 0.2s",
-            opacity: (isLoggingIn || authLoading) ? 0.6 : 1
-          }}
+          className={`
+            w-full p-3.5 bg-white text-gray-700 border-2 border-gray-200 rounded-lg
+            text-base font-semibold flex items-center justify-center gap-3
+            transition-all duration-200
+            ${(isLoggingIn || authLoading) ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-50 cursor-pointer"}
+          `}
         >
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -118,12 +80,7 @@ export default function LoginPage() {
           {(isLoggingIn || authLoading) ? "Signing in..." : "Continue with Google"}
         </button>
 
-        <p style={{ 
-          textAlign: "center", 
-          marginTop: "30px", 
-          fontSize: "14px",
-          color: "#888"
-        }}>
+        <p className="text-center mt-8 text-sm text-gray-400">
           By continuing, you agree to our Terms of Service
         </p>
       </div>
