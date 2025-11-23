@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -10,8 +10,20 @@ export default function SetupProfile() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { user, updateUserProfile } = useAuth();
+  const { user, userProfile, updateUserProfile } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user?.displayName) {
+      setUserName(user.displayName);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,13 +37,11 @@ export default function SetupProfile() {
       setError("");
       setLoading(true);
 
-      // Save user profile data
       await updateUserProfile({
         userName: userName.trim(),
         bikeName: bikeName.trim()
       });
 
-      // Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {
       setError("Failed to save profile: " + error.message);
@@ -40,84 +50,144 @@ export default function SetupProfile() {
     }
   };
 
+  if (!user) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh" 
+      }}>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
-      maxWidth: "400px", 
-      margin: "50px auto", 
-      padding: "20px",
-      border: "1px solid #ccc",
-      borderRadius: "8px"
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+      backgroundColor: "#f5f5f5"
     }}>
-      <h1 style={{ textAlign: "center" }}>Complete Your Profile</h1>
-      <p style={{ textAlign: "center", color: "#666", marginBottom: "20px" }}>
-        Tell us about yourself
-      </p>
-      
-      {error && (
-        <p style={{ color: "red", textAlign: "center", marginBottom: "15px" }}>
-          {error}
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Your Name:
-          </label>
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            placeholder="Enter your name"
-            required
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              fontSize: "14px"
-            }}
-          />
+      <div style={{ 
+        maxWidth: "500px",
+        width: "100%",
+        padding: "40px",
+        backgroundColor: "white",
+        borderRadius: "12px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+      }}>
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          {user.photoURL && (
+            <img 
+              src={user.photoURL} 
+              alt="Profile"
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                marginBottom: "15px",
+                border: "3px solid #0070f3"
+              }}
+            />
+          )}
+          
+          <h1 style={{ fontSize: "28px", marginBottom: "8px", color: "#0070f3" }}>
+            Complete Your Profile
+          </h1>
+          <p style={{ fontSize: "14px", color: "#666" }}>
+            Tell us about yourself and your ride
+          </p>
         </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Your Bike:
-          </label>
-          <input
-            type="text"
-            value={bikeName}
-            onChange={(e) => setBikeName(e.target.value)}
-            placeholder="Enter your bike name"
-            required
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              fontSize: "14px"
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
+        
+        {error && (
+          <div style={{ 
             padding: "12px",
-            backgroundColor: loading ? "#ccc" : "#0070f3",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: loading ? "not-allowed" : "pointer",
-            fontSize: "16px",
-            fontWeight: "bold"
-          }}
-        >
-          {loading ? "Saving..." : "Continue"}
-        </button>
-      </form>
+            backgroundColor: "#fee",
+            border: "1px solid #fcc",
+            borderRadius: "6px",
+            marginBottom: "20px"
+          }}>
+            <p style={{ color: "#c00", margin: 0, fontSize: "14px" }}>
+              {error}
+            </p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333"
+            }}>
+              Your Name
+            </label>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="Enter your name"
+              required
+              style={{
+                width: "100%",
+                padding: "12px",
+                borderRadius: "6px",
+                border: "2px solid #ddd",
+                fontSize: "16px"
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "25px" }}>
+            <label style={{ 
+              display: "block", 
+              marginBottom: "8px",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333"
+            }}>
+              Your Bike
+            </label>
+            <input
+              type="text"
+              value={bikeName}
+              onChange={(e) => setBikeName(e.target.value)}
+              placeholder="e.g., Royal Enfield Classic 350"
+              required
+              style={{
+                width: "100%",
+                padding: "12px",
+                borderRadius: "6px",
+                border: "2px solid #ddd",
+                fontSize: "16px"
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "14px",
+              backgroundColor: loading ? "#ccc" : "#0070f3",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontSize: "16px",
+              fontWeight: "bold"
+            }}
+          >
+            {loading ? "Saving..." : "Continue to Dashboard"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -3,11 +3,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { 
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 const AuthContext = createContext({});
 
@@ -18,18 +19,33 @@ export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       
       if (user) {
-        // Load user profile from localStorage
-        const savedProfile = localStorage.getItem(`userProfile_${user.uid}`);
-        if (savedProfile) {
-          setUserProfile(JSON.parse(savedProfile));
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data());
+          } else {
+            const initialProfile = {
+              userName: user.displayName || "",
+              email: user.email,
+              uid: user.uid,
+              photoURL: user.photoURL,
+              createdAt: new Date().toISOString()
+            };
+            setUserProfile(initialProfile);
+          }
+        } catch (error) {
+          console.error("Error loading user profile:", error);
+          setUserProfile(null);
         }
-      } else {
+      } 
+      else {
         setUserProfile(null);
       }
       
@@ -39,47 +55,56 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  // Sign up function
-  const signup = async (email, password) => {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    return result;
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  // Login function
-  const login = async (email, password) => {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return result;
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      throw error;
+    }
   };
 
-  // Logout function
-  const logout = () => {
-    return signOut(auth);
-  };
+  const updateUserProfile = async (profileData) => {
+    if (!user) {
+      throw new Error("No user logged in");
+    }
 
-  // Update user profile
-  const updateUserProfile = (profileData) => {
-    if (user) {
-      const profile = {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      
+      const updatedProfile = {
         ...profileData,
         email: user.email,
-        uid: user.uid
+        uid: user.uid,
+        photoURL: user.photoURL,
+        updatedAt: new Date().toISOString()
       };
+
+      await setDoc(userDocRef, updatedProfile, { merge: true });
+
+      setUserProfile(updatedProfile);
       
-      // Save to localStorage
-      localStorage.setItem(`userProfile_${user.uid}`, JSON.stringify(profile));
-      setUserProfile(profile);
-      
-      return Promise.resolve(profile);
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
     }
-    return Promise.reject(new Error("No user logged in"));
   };
 
   const value = {
     user,
     userProfile,
     loading,
-    signup,
-    login,
+    loginWithGoogle,
     logout,
     updateUserProfile
   };

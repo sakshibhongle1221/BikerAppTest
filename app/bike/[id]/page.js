@@ -25,7 +25,7 @@ export default function BikeDetail() {
 
       <p>
   <a href="/" style={{ color: "blue", textDecoration: "underline" }}>
-    ← Back to Home
+    Back to Home
   </a>
 </p>
 
