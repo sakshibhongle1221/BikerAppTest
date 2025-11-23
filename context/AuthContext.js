@@ -20,37 +20,34 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      setUser(authUser);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
       
-      if (authUser) {
+      if (user) {
         try {
-          const userDocRef = doc(db, "users", authUser.uid);
+          const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
           
           if (userDoc.exists()) {
             setUserProfile(userDoc.data());
           } else {
             const initialProfile = {
-              userName: authUser.displayName || "",
-              email: authUser.email,
-              uid: authUser.uid,
-              photoURL: authUser.photoURL,
-              createdAt: new Date().toISOString(),
-              bikeName: null
+              userName: user.displayName || "",
+              email: user.email,
+              uid: user.uid,
+              photoURL: user.photoURL,
+              createdAt: new Date().toISOString()
             };
-            
-            await setDoc(userDocRef, initialProfile);
             setUserProfile(initialProfile);
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error("Error loading user profile:", error);
           setUserProfile(null);
         }
       } else {
         setUserProfile(null);
       }
-
+      
       setLoading(false);
     });
 
@@ -58,11 +55,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      return result;
     } catch (error) {
-      console.error("Login failed", error);
       throw error;
     }
   };
@@ -70,35 +67,48 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      setUser(null);
-      setUserProfile(null);
     } catch (error) {
-      console.error("Logout failed", error);
       throw error;
     }
   };
 
   const updateUserProfile = async (profileData) => {
-    if (!user) throw new Error("No user logged in");
+    if (!user) {
+      throw new Error("No user logged in");
+    }
 
     try {
       const userDocRef = doc(db, "users", user.uid);
+      
       const updatedProfile = {
-        ...userProfile,
         ...profileData,
+        email: user.email,
+        uid: user.uid,
+        photoURL: user.photoURL,
         updatedAt: new Date().toISOString()
       };
 
       await setDoc(userDocRef, updatedProfile, { merge: true });
       setUserProfile(updatedProfile);
+      
+      return updatedProfile;
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error("Error updating profile:", error);
       throw error;
     }
   };
 
+  const value = {
+    user,
+    userProfile,
+    loading,
+    loginWithGoogle,
+    logout,
+    updateUserProfile
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, loginWithGoogle, logout, updateUserProfile }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

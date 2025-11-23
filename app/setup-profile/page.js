@@ -3,32 +3,27 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
 
 export default function SetupProfile() {
   const [userName, setUserName] = useState("");
   const [bikeName, setBikeName] = useState("");
   const [error, setError] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const { user, userProfile, updateUserProfile, loading } = useAuth();
+  const { user, userProfile, updateUserProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.displayName && !userName) {
+    if (user?.displayName) {
       setUserName(user.displayName);
     }
-  }, [user, userName]);
+  }, [user]);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       router.push("/login");
     }
-
-    if (!loading && user && userProfile?.bikeName) {
-      router.push("/dashboard");
-    }
-  }, [user, userProfile, loading, router]);
+  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +35,7 @@ export default function SetupProfile() {
 
     try {
       setError("");
-      setIsSaving(true);
+      setLoading(true);
 
       await updateUserProfile({
         userName: userName.trim(),
@@ -50,51 +45,48 @@ export default function SetupProfile() {
       router.push("/dashboard");
     } catch (error) {
       setError("Failed to save profile: " + error.message);
-      setIsSaving(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading || !user) {
+  if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <h2 className="text-xl font-semibold">Loading...</h2>
+        <h2 className="text-2xl font-semibold text-gray-700">Loading...</h2>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="max-w-[500px] w-full p-10 bg-white rounded-xl shadow-md">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+      <div className="max-w-lg w-full px-8 py-10 bg-white rounded-xl shadow-lg">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-20 h-20 rounded-full border-4 border-blue-600 overflow-hidden relative">
-               {user.photoURL ? (
-                 <Image src={user.photoURL} alt="Profile" fill className="object-cover" />
-               ) : (
-                 <div className="w-full h-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500">
-                   {userName ? userName.charAt(0).toUpperCase() : "U"}
-                 </div>
-               )}
-            </div>
-          </div>
+          {user.photoURL && (
+            <img 
+              src={user.photoURL} 
+              alt="Profile"
+              className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-600"
+            />
+          )}
           
-          <h1 className="text-2xl font-bold mb-2 text-blue-600">
+          <h1 className="text-3xl font-bold text-blue-600 mb-2">
             Complete Your Profile
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-gray-600 text-sm">
             Tell us about yourself and your ride
           </p>
         </div>
         
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-5">
-            <p className="text-red-600 m-0 text-sm">{error}</p>
+          <div className="p-3 mb-5 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-5">
-            <label className="block mb-2 text-sm font-semibold text-gray-700">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-black">
               Your Name
             </label>
             <input
@@ -103,34 +95,30 @@ export default function SetupProfile() {
               onChange={(e) => setUserName(e.target.value)}
               placeholder="Enter your name"
               required
-              className="w-full p-3 rounded-lg border-2 border-gray-200 text-base focus:border-blue-500 focus:outline-none"
+              className="w-full px-4 py-3 border-2 border-black rounded-lg focus:border-blue-600 focus:outline-none text-gray-900 transition-colors"
             />
           </div>
 
-          <div className="mb-6">
-            <label className="block mb-2 text-sm font-semibold text-gray-700">
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-black">
               Your Bike
             </label>
             <input
               type="text"
               value={bikeName}
               onChange={(e) => setBikeName(e.target.value)}
-              placeholder="e.g., Royal Enfield Classic 350"
+              placeholder="e.g, Royal Enfield Classic 350"
               required
-              className="w-full p-3 rounded-lg border-2 border-gray-200 text-base focus:border-blue-500 focus:outline-none"
+              className="w-full px-4 py-3 border-2 border-black rounded-lg focus:border-blue-600 focus:outline-none text-gray-900 transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            disabled={isSaving}
-            className={`
-              w-full p-3.5 bg-blue-600 text-white border-none rounded-lg
-              text-base font-bold cursor-pointer transition-colors
-              ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"}
-            `}
+            disabled={loading}
+            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isSaving ? "Saving..." : "Continue to Dashboard"}
+            {loading ? "Saving..." : "Continue to Dashboard"}
           </button>
         </form>
       </div>

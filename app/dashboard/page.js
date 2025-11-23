@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
 
 export default function Dashboard() {
   const [bikes, setBikes] = useState([]);
@@ -52,7 +51,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <h2 className="text-xl font-semibold">Loading...</h2>
+        <h2 className="text-2xl font-semibold text-gray-700">Loading...</h2>
       </div>
     );
   }
@@ -62,20 +61,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+
       <div className="absolute top-5 right-5 flex items-center gap-4">
+
         <div 
           onClick={handleProfileClick}
-          className="w-[50px] h-[50px] rounded-full bg-blue-600 text-white flex justify-center items-center text-xl font-bold cursor-pointer border-2 border-blue-600 overflow-hidden relative"
+          className="w-12 h-12 rounded-full bg-blue-600 border-4 border-blue-700 flex items-center justify-center text-white text-xl font-bold cursor-pointer hover:scale-110 transition-transform overflow-hidden"
           title="View Profile"
         >
           {user.photoURL ? (
-            <Image 
+            <img 
               src={user.photoURL} 
               alt="Profile"
-              fill
-              className="object-cover"
-              sizes="50px"
+              className="w-full h-full object-cover"
             />
           ) : (
             userProfile?.userName ? userProfile.userName.charAt(0).toUpperCase() : "U"
@@ -84,31 +83,31 @@ export default function Dashboard() {
 
         <button 
           onClick={handleLogout}
-          className="px-5 py-2.5 bg-red-500 text-white border-none rounded-md cursor-pointer text-sm font-bold hover:bg-red-600 transition-colors"
+          className="px-5 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition-colors"
         >
           Logout
         </button>
       </div>
 
-      <div className="text-center pt-[100px] px-5 pb-5">
-        <h1 className="text-4xl font-bold mb-2 text-blue-600">
-           Welcome to Riders App
+      <div className="text-center pt-24 px-5">
+        <h1 className="text-5xl font-bold text-blue-600 mb-3">
+          Welcome to Riders App
         </h1>
         
         {userProfile?.userName && (
-          <p className="text-xl text-gray-600 mb-10">
-            Hello, <strong>{userProfile.userName}</strong>!
+          <p className="text-xl text-gray-700 mb-10">
+            Hello, <strong>{userProfile.userName}</strong>! 
           </p>
         )}
 
-        <h3 className="mb-6 text-xl text-gray-800">
+        <h3 className="text-xl text-gray-800 mb-6 font-semibold">
           Select the bike you want to know about:
         </h3>
 
         <select
           value={selectedBike}
           onChange={handleSelectChange}
-          className="p-3.5 text-base rounded-lg border-2 border-blue-600 cursor-pointer min-w-[300px] bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="px-6 py-3 text-lg border-2 border-blue-600 rounded-lg cursor-pointer min-w-[300px] bg-white text-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
         >
           <option value="">Select a bike</option>
           {bikes.map((bike) => (

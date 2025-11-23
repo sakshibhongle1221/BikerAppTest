@@ -1,65 +1,85 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function BikeDetail() {
   const { id } = useParams();
   const [bike, setBike] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    
-    setLoading(true);
-    fetch(`${apiUrl}/bikes/${id}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("Bike not found");
-        }
-        return res.json();
-      })
-      .then(data => {
-        setBike(data);
-        setError(null);
-      })
-      .catch(err => {
-        console.error(err);
-        setError(err.message);
-      })
-      .finally(() => setLoading(false));
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`https://bikerapp-backend-694862036731.asia-south1.run.app/bikes/${id}`)
+        .then(res => res.json())
+        .then(data => setBike(data))
+        .catch(err => console.error("Error fetching bike:", err));
+    }
   }, [id]);
 
-  if (loading) return <h3 className="text-center mt-12 text-xl">Loading...</h3>;
-  
-  if (error) return (
-    <div className="text-center mt-12">
-      <h3 className="text-red-500 text-xl font-bold">Error: {error}</h3>
-      <Link href="/dashboard" className="text-blue-600 underline mt-4 block">
-        Return to Dashboard
-      </Link>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h3 className="text-xl text-gray-700">Loading...</h3>
+      </div>
+    );
+  }
 
-  if (!bike) return null;
+  if (!user) {
+    return null;
+  }
+
+  if (!bike) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h3 className="text-xl text-gray-700">Loading bike details...</h3>
+      </div>
+    );
+  }
 
   return (
-    <div className="text-center mt-12 max-w-2xl mx-auto p-5 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">{bike.name}</h1>
-      
-      <div className="space-y-3 text-left max-w-md mx-auto">
-        <p className="text-lg"><strong className="font-semibold text-gray-700">Brand:</strong> {bike.brand}</p>
-        <p className="text-lg"><strong className="font-semibold text-gray-700">Engine:</strong> {bike.engine}</p>
-        <p className="text-lg"><strong className="font-semibold text-gray-700">Price:</strong> {bike.price}</p>
-        <p className="text-lg"><strong className="font-semibold text-gray-700">Description:</strong> {bike.description}</p>
-      </div>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-5">
+      <div className="max-w-2xl w-full px-8 py-10 bg-white rounded-xl shadow-lg border-2 border-blue-600">
+        <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
+          {bike.name}
+        </h1>
+        
+        <div className="space-y-5">
+          <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-sm font-semibold text-gray-500 mb-1">Brand</p>
+            <p className="text-xl font-bold text-gray-800">{bike.brand}</p>
+          </div>
 
-      <div className="mt-8">
-        <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 underline font-medium">
+          <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-sm font-semibold text-gray-500 mb-1">Engine</p>
+            <p className="text-xl font-bold text-gray-800">{bike.engine}</p>
+          </div>
+
+          <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-sm font-semibold text-gray-500 mb-1">Price</p>
+            <p className="text-xl font-bold text-gray-800">{bike.price}</p>
+          </div>
+
+          <div className="p-5 bg-gray-50 rounded-lg border border-gray-200 mb-8">
+            <p className="text-sm font-semibold text-gray-500 mb-1">Description</p>
+            <p className="text-base text-gray-700 leading-relaxed">{bike.description}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+        >
           Back to Dashboard
-        </Link>
+        </button>
       </div>
     </div>
   );

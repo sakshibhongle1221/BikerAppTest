@@ -29,13 +29,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "100vh" 
-      }}>
-        <h2>Loading...</h2>
+      <div className="flex justify-center items-center h-screen">
+        <h2 className="text-2xl font-semibold text-gray-700">Loading...</h2>
       </div>
     );
   }
@@ -45,60 +40,20 @@ export default function ProfilePage() {
   }
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      backgroundColor: "#f5f5f5",
-      padding: "20px"
-    }}>
-      <div style={{ 
-        maxWidth: "500px",
-        width: "100%",
-        padding: "40px",
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-      }}>
-        <h1 style={{ 
-          textAlign: "center", 
-          marginBottom: "35px", 
-          color: "#0070f3",
-          fontSize: "32px"
-        }}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-5">
+      <div className="max-w-lg w-full px-10 py-12 bg-white rounded-xl shadow-lg">
+        <h1 className="text-4xl font-bold text-center text-blue-600 mb-10">
           Your Profile
         </h1>
 
-        <div style={{ marginBottom: "30px" }}>
-          <div style={{ 
-            display: "flex", 
-            justifyContent: "center", 
-            marginBottom: "30px" 
-          }}>
-            <div style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              backgroundColor: user.photoURL ? "transparent" : "#0070f3",
-              color: "white",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: "48px",
-              fontWeight: "bold",
-              border: "4px solid #0070f3",
-              overflow: "hidden"
-            }}>
+        <div className="mb-8">
+          <div className="flex justify-center mb-8">
+            <div className="w-32 h-32 rounded-full bg-blue-600 border-4 border-blue-700 flex items-center justify-center text-white text-5xl font-bold overflow-hidden">
               {user.photoURL ? (
                 <img 
                   src={user.photoURL} 
                   alt="Profile"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover"
-                  }}
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 userProfile?.userName ? userProfile.userName.charAt(0).toUpperCase() : "U"
@@ -106,83 +61,45 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ 
-            padding: "18px", 
-            backgroundColor: "#f9f9f9", 
-            borderRadius: "8px",
-            marginBottom: "15px",
-            border: "1px solid #e0e0e0"
-          }}>
-            <p style={{ margin: "0", fontSize: "13px", color: "#888", fontWeight: "600" }}>
-              NAME
+          <div className="p-5 bg-gray-50 rounded-lg mb-4 border border-gray-200">
+            <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+              Name
             </p>
-            <p style={{ margin: "8px 0 0 0", fontSize: "20px", fontWeight: "bold", color: "#333" }}>
+            <p className="text-xl font-bold text-gray-800">
               {userProfile?.userName || user.displayName || "Not set"}
             </p>
           </div>
 
-          <div style={{ 
-            padding: "18px", 
-            backgroundColor: "#f9f9f9", 
-            borderRadius: "8px",
-            marginBottom: "15px",
-            border: "1px solid #e0e0e0"
-          }}>
-            <p style={{ margin: "0", fontSize: "13px", color: "#888", fontWeight: "600" }}>
-              EMAIL
+          <div className="p-5 bg-gray-50 rounded-lg mb-4 border border-gray-200">
+            <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+              Email
             </p>
-            <p style={{ margin: "8px 0 0 0", fontSize: "18px", fontWeight: "600", color: "#333" }}>
+            <p className="text-lg font-semibold text-gray-800">
               {user.email}
             </p>
           </div>
 
-          <div style={{ 
-            padding: "18px", 
-            backgroundColor: "#f9f9f9", 
-            borderRadius: "8px",
-            marginBottom: "30px",
-            border: "1px solid #e0e0e0"
-          }}>
-            <p style={{ margin: "0", fontSize: "13px", color: "#888", fontWeight: "600" }}>
-              YOUR BIKE
+          <div className="p-5 bg-gray-50 rounded-lg mb-8 border border-gray-200">
+            <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+              Your Bike
             </p>
-            <p style={{ margin: "8px 0 0 0", fontSize: "20px", fontWeight: "bold", color: "#333" }}>
+            <p className="text-xl font-bold text-gray-800">
               {userProfile?.bikeName || "Not set"}
             </p>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div className="flex gap-3">
           <button
             onClick={handleBackToDashboard}
-            style={{
-              flex: 1,
-              padding: "14px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "bold"
-            }}
+            className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
           >
             Dashboard
           </button>
 
           <button
             onClick={handleLogout}
-            style={{
-              flex: 1,
-              padding: "14px",
-              backgroundColor: "#ff4444",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "bold"
-            }}
+            className="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition-colors"
           >
             Logout
           </button>
