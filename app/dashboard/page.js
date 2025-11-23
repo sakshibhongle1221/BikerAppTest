@@ -28,7 +28,7 @@ export default function Dashboard() {
     setSelectedBike(bikeId);
 
     if (bikeId) {
-      router.push(`/bike/${bikeId}`);
+      router.push(`/bikes/${bikeId}`);
     }
   };
 
