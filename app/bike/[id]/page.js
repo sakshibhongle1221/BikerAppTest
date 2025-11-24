@@ -16,16 +16,27 @@ export default function BikeDetail() {
       router.push("/login");
     }
   }, [user, loading, router]);
-
+  
   useEffect(() => {
     if (id) {
-      setError(null); 
+      setError(null);
       fetch(`https://bikerapp-backend-694862036731.asia-south1.run.app/bikes/${id}`)
         .then(async (res) => {
-          if (!res.ok) {
-            throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+             const data = await res.json();
+             
+             if (!res.ok) {
+               throw new Error(data.message || data.error || `Server error: ${res.status}`);
+             }
+             return data;
+          } else {
+             if (!res.ok) {
+               const text = await res.text();
+               throw new Error(`Server returned ${res.status}: ${text}`);
+             }
+             return null;
           }
-          return res.json();
         })
         .then(data => {
           console.log("Bike data received:", data);
@@ -38,6 +49,7 @@ export default function BikeDetail() {
     }
   }, [id]);
 
+// ... rest of the component
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
